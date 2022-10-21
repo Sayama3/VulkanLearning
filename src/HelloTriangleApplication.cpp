@@ -3,7 +3,10 @@
 //
 
 #include <vector>
+#include <cstring>
 #include "HelloTriangleApplication.hpp"
+
+#define LOG(s) std::cout << s << '\n'
 
 namespace vkl {
     void HelloTriangleApplication::run() {
@@ -58,15 +61,34 @@ namespace vkl {
             throw std::runtime_error("failed to create vulkan instance.");
         }
 
-        // Checking if there is the extensions we want.
+        // Getting all the available extensions
         uint32_t extensionCount = 0;
         vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
         std::vector<VkExtensionProperties> extensions(extensionCount);
         vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, extensions.data());
-        std::cout << "available extensions:" << '\n';
-        for (const auto& extension: extensions) {
-            std::cout << '\t' << extension.extensionName << '\n';
+
+        // Getting the required extensions
+        uint32_t requiredExtensionsCount = 0;
+        const char** requiredExtensions = glfwGetRequiredInstanceExtensions(&requiredExtensionsCount);
+
+        // CHecking that we have the required extensions
+        for (int i = 0; i < requiredExtensionsCount; ++i) {
+            bool found = false;
+            const char* requiredExtension = requiredExtensions[i];
+            for (const auto& extension: extensions) {
+                if (strcmp(extension.extensionName, requiredExtension) == 0){
+                    LOG("Found " << requiredExtension << '.');
+                    found = true;
+                    break;
+                }
+            }
+
+            // If we miss one, throwing error.
+            if (!found){
+                throw std::runtime_error(std::string(requiredExtension).append(" not found."));
+            }
         }
+
     }
 
     void HelloTriangleApplication::mainLoop() {
