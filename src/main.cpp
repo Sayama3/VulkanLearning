@@ -1,6 +1,13 @@
-#include <iostream>
+#include "HelloTriangleApplication.hpp"
 
-int main() {
-    std::cout << "Hello, World!" << std::endl;
-    return 0;
+
+int main () {
+    vkl::HelloTriangleApplication app;
+    try {
+        app.run();
+    } catch (const std::exception& e) {
+        std::cerr << e.what() << std::endl;
+        return EXIT_FAILURE;
+    }
+    return EXIT_SUCCESS;
 }

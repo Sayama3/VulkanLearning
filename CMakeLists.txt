@@ -4,7 +4,9 @@ set(CMAKE_CXX_FLAGS_DEBUG_INIT "-g")
 
 project(VulkanLearning)
 
-set(CMAKE_CXX_STANDARD 17)
+add_definitions(-D_USE_MATH_DEFINES)
+
+set(CMAKE_CXX_STANDARD 20)
 
 add_executable(VulkanLearning)
 
