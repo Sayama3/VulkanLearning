@@ -44,9 +44,12 @@ namespace vkl {
         void checkRequiredVulkanExtensions();
 
         bool checkValidationLayerSupport();
+        std::vector<const char*> getRequiredExtensions();
 
         VkInstance instance;
         GLFWwindow* window;
+
+        static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback();
     };
 
 } // vkl

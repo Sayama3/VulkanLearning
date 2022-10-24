@@ -33,6 +33,7 @@ namespace vkl {
     }
 
     void HelloTriangleApplication::createInstance() {
+
         if (enableValidationLayers && !checkValidationLayerSupport()){
             throw std::runtime_error("The validation layers were requested, but not available!");
         }
@@ -51,8 +52,9 @@ namespace vkl {
 
 
         if (enableValidationLayers){
-            createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
-            createInfo.ppEnabledLayerNames = validationLayers.data();
+            auto extensions = getRequiredExtensions();
+            createInfo.enabledLayerCount = static_cast<uint32_t>(extensions.size());
+            createInfo.ppEnabledLayerNames = extensions.data();
         } else {
             createInfo.enabledLayerCount = 0;
         }
@@ -132,6 +134,29 @@ namespace vkl {
             }
         }
         return true;
+    }
+
+    std::vector<const char*> HelloTriangleApplication::getRequiredExtensions() {
+        uint32_t glfwExtensionsCount = 0;
+        const char** glfwExtensions;
+        glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionsCount);
+
+        std::vector<const char*> extensions(glfwExtensions, glfwExtensions + glfwExtensionsCount);
+
+        if (enableValidationLayers) {
+            for (const char* validationLayer:validationLayers) {
+                extensions.push_back(validationLayer);
+            }
+            extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+        }
+        return extensions;
+    }
+
+
+    static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(){
+        VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity;
+        VkDebugUtilsMessageTypeFlagBitsEXT messageType;
+        const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData;
     }
 
     void HelloTriangleApplication::mainLoop() {
