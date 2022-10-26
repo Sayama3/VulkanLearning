@@ -6,6 +6,7 @@
 #include <cstring>
 
 #define LOG(s) std::cout << s << std::endl;
+#define LOG_WARN(s) std::cout << s << std::endl;
 #define LOG_ERR(s) std::cerr << s << std::endl;
 
 namespace vkl {
@@ -153,10 +154,16 @@ namespace vkl {
     }
 
 
-    static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(){
-        VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity;
-        VkDebugUtilsMessageTypeFlagBitsEXT messageType;
-        const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData;
+    VkBool32 HelloTriangleApplication::debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+                                                     VkDebugUtilsMessageTypeFlagsEXT messageType,
+                                                     const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData,
+                                                     void *pUserData) {
+
+        LOG_ERR("validation layer: " << pCallbackData->pMessage);
+
+
+
+        return VK_FALSE;
     }
 
     void HelloTriangleApplication::mainLoop() {
