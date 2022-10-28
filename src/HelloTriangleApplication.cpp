@@ -10,6 +10,33 @@
 #define LOG_ERR(s) std::cerr << s << std::endl;
 
 namespace vkl {
+    /// Proxy function to automatically load a VkDebugUtilsMessengerCreateInfoEXT.
+    /// \param instance
+    /// \param pCreateInfo
+    /// \param pAllocator
+    /// \param pDebugMessenger
+    /// \return
+    VkResult CreateDebugUtilsMessengerEXT(VkInstance instance,
+                                          const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
+                                          const VkAllocationCallbacks* pAllocator,
+                                          VkDebugUtilsMessengerEXT* pDebugMessenger) {
+        auto func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance,"vkCreateDebugUtilsMessengerEXT");
+        if(func != nullptr) {
+            return func(instance, pCreateInfo, pAllocator, pDebugMessenger);
+        } else {
+            return VK_ERROR_EXTENSION_NOT_PRESENT;
+        }
+    }
+
+    void DestroyDebugUtilsMessengerEXT(VkInstance instance,
+                                           VkDebugUtilsMessengerEXT debugMessenger,
+                                           const VkAllocationCallbacks* pAllocator) {
+        auto func = (PFN_vkDestroyDebugUtilsMessengerEXT) vkGetInstanceProcAddr(instance,"vkDestroyDebugUtilsMessengerEXT");
+        if(func != nullptr) {
+            func(instance, debugMessenger, pAllocator);
+        }
+    }
+
     void HelloTriangleApplication::run() {
         initWindow();
         initVulkan();
@@ -31,6 +58,7 @@ namespace vkl {
 
     void HelloTriangleApplication::initVulkan() {
         createInstance();
+        setupDebugMessenger();
     }
 
     void HelloTriangleApplication::createInstance() {
@@ -159,11 +187,43 @@ namespace vkl {
                                                      const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData,
                                                      void *pUserData) {
 
-        LOG_ERR("validation layer: " << pCallbackData->pMessage);
-
-
+        if(messageSeverity >= VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT) {
+            // The message is important enough to be shown.
+            LOG_ERR("validation layer: " << pCallbackData->pMessage);
+        }
 
         return VK_FALSE;
+    }
+
+    void HelloTriangleApplication::setupDebugMessenger() {
+        if(!enableValidationLayers) return;
+
+        VkDebugUtilsMessengerCreateInfoEXT createInfo {};
+        // Just the type of structure this is.
+        createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
+
+        // The type of severity I want to call with this messenger.
+        createInfo.messageSeverity =
+                VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT |
+                VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
+                VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
+
+        // The type of message I want to be notified about.
+        createInfo.messageType =
+                VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
+                VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
+                VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
+
+        // The function it should call to pass all that.
+        createInfo.pfnUserCallback = debugCallback;
+
+        // Optional: A pointer that will be passed to the callback when called.
+        createInfo.pUserData = nullptr;
+
+        // This is an extension function, so we have to search for it first
+        if(CreateDebugUtilsMessengerEXT(instance, &createInfo, nullptr, &debugMessenger) != VK_SUCCESS) {
+            throw std::runtime_error("failed to set up debug messenger!");
+        }
     }
 
     void HelloTriangleApplication::mainLoop() {
@@ -173,6 +233,10 @@ namespace vkl {
     }
 
     void HelloTriangleApplication::cleanup() {
+        if(enableValidationLayers) {
+            DestroyDebugUtilsMessengerEXT(instance, debugMessenger, nullptr);
+        }
+
         //The VkInstance should be only destroyed right before the program exits. It
         //can be destroyed in cleanup with the vkDestroyInstance function
         vkDestroyInstance(instance, nullptr);

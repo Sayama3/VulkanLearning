@@ -48,12 +48,17 @@ namespace vkl {
 
         VkInstance instance;
         GLFWwindow* window;
+        // Debug variable (?)
+        VkDebugUtilsMessengerEXT debugMessenger;
 
         static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
                 VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
                 VkDebugUtilsMessageTypeFlagsEXT messageType,
                 const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
                 void* pUserData);
+
+        void setupDebugMessenger();
+
     };
 
 } // vkl
