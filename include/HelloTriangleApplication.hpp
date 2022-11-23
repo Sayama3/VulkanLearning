@@ -46,7 +46,10 @@ namespace vkl {
         bool checkValidationLayerSupport();
         std::vector<const char*> getRequiredExtensions();
 
+        // The vulkan instance
         VkInstance instance;
+        // The selected graphics card
+        VkPhysicalDevice physicalDevice;
         GLFWwindow* window;
         // Debug variable (?)
         VkDebugUtilsMessengerEXT debugMessenger;
@@ -59,6 +62,8 @@ namespace vkl {
 
         void setupDebugMessenger();
 
+        void pickPhysicalDevice();
+        bool isDeviceSuitable(VkPhysicalDevice device);
     };
 
 } // vkl
