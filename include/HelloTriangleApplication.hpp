@@ -40,17 +40,23 @@ namespace vkl {
 
         void createInstance();
 
-        // Function that I create as part of the tutorial
-        void checkRequiredVulkanExtensions();
-
         bool checkValidationLayerSupport();
         std::vector<const char*> getRequiredExtensions();
+
+
+        void pickPhysicalDevice();
+
+        /// Function to check if the device incorporate all the functionality we need.
+        /// \param device
+        /// \return
+        bool isDeviceSuitable(VkPhysicalDevice device);
 
         // The vulkan instance
         VkInstance instance;
         // The selected graphics card
         VkPhysicalDevice physicalDevice;
         GLFWwindow* window;
+
         // Debug variable (?)
         VkDebugUtilsMessengerEXT debugMessenger;
 
@@ -62,12 +68,6 @@ namespace vkl {
 
         void setupDebugMessenger();
 
-        void pickPhysicalDevice();
-
-        /// Function to check if the device incorporate all the functionality we need.
-        /// \param device
-        /// \return
-        bool isDeviceSuitable(VkPhysicalDevice device);
     };
 
 } // vkl

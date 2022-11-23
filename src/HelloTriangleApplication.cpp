@@ -3,6 +3,7 @@
 //
 
 #include "HelloTriangleApplication.hpp"
+#include "QueueFamilyIndices.hpp"
 #include <cstring>
 
 #define LOG(s) std::cout << s << std::endl;
@@ -94,7 +95,9 @@ namespace vkl {
     //  make an algorithm to filter the GPU and take the best. (and allow the user to change it for a)
     //  a specific one if he want to.
     bool HelloTriangleApplication::isDeviceSuitable(VkPhysicalDevice device) {
-        return true;
+        QueueFamilyIndices indices = vkl::findQueueFamilies(device);
+
+        return indices.graphicsFamily.has_value();
 //        // In the cas we would like a GPU that can handle geometry shader :
 //        // Fetching all the features and property of the device.
 //        VkPhysicalDeviceProperties deviceProperties;
@@ -148,39 +151,6 @@ namespace vkl {
         if(vkCreateInstance(&createInfo, nullptr, &instance) != VK_SUCCESS){
             throw std::runtime_error("failed to create vulkan instance.");
         }
-    }
-
-    void HelloTriangleApplication::checkRequiredVulkanExtensions() {
-        // Getting all the available extensions
-        uint32_t extensionCount = 0;
-        vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
-        std::vector<VkExtensionProperties> extensions(extensionCount);
-        vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, extensions.data());
-
-
-        // Getting the required extensions
-        uint32_t requiredExtensionsCount = 0;
-        const char** requiredExtensions = glfwGetRequiredInstanceExtensions(&requiredExtensionsCount);
-
-        // Checking that we have the required extensions
-        for (int i = 0; i < requiredExtensionsCount; ++i) {
-            bool found = false;
-            const char* requiredExtension = requiredExtensions[i];
-            for (const auto& extension: extensions) {
-                if (strcmp(extension.extensionName, requiredExtension) == 0){
-                    LOG("Found " << requiredExtension << '.');
-                    found = true;
-                    break;
-                }
-            }
-
-            // If we miss one, throwing error.
-            if (!found){
-                throw std::runtime_error(std::string(requiredExtension).append(" not found."));
-            }
-        }
-
-        LOG("===== Found all the required extensions =====");
     }
 
     bool HelloTriangleApplication::checkValidationLayerSupport(){
