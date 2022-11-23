@@ -63,6 +63,10 @@ namespace vkl {
         void setupDebugMessenger();
 
         void pickPhysicalDevice();
+
+        /// Function to check if the device incorporate all the functionality we need.
+        /// \param device
+        /// \return
         bool isDeviceSuitable(VkPhysicalDevice device);
     };
 

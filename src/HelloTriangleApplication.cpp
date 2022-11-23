@@ -90,8 +90,20 @@ namespace vkl {
         }
     }
 
+    // TODO: Implement a system taking a configuration file to know which device are suitable and
+    //  make an algorithm to filter the GPU and take the best. (and allow the user to change it for a)
+    //  a specific one if he want to.
     bool HelloTriangleApplication::isDeviceSuitable(VkPhysicalDevice device) {
         return true;
+//        // In the cas we would like a GPU that can handle geometry shader :
+//        // Fetching all the features and property of the device.
+//        VkPhysicalDeviceProperties deviceProperties;
+//        VkPhysicalDeviceFeatures deviceFeatures;
+//        vkGetPhysicalDeviceProperties(device, &deviceProperties);
+//        vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
+//
+//        return deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU
+//            && deviceFeatures.geometryShader;
     }
 
     void HelloTriangleApplication::createInstance() {
