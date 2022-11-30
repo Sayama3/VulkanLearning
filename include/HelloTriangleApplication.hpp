@@ -45,6 +45,7 @@ namespace vkl {
 
 
         void pickPhysicalDevice();
+        void createLogicalDevice();
 
         /// Function to check if the device incorporate all the functionality we need.
         /// \param device
@@ -55,6 +56,7 @@ namespace vkl {
         VkInstance instance;
         // The selected graphics card
         VkPhysicalDevice physicalDevice;
+        VkDevice device;
         GLFWwindow* window;
 
         // Debug variable (?)

@@ -18,8 +18,17 @@ namespace vkl {
             if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT){
                 indices.graphicsFamily = i;
             }
+
+            if(indices.isComplete()) {
+                break;
+            }
+
             i++;
         }
         return indices;
+    }
+
+    bool QueueFamilyIndices::isComplete()  {
+        return graphicsFamily.has_value();
     }
 }

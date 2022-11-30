@@ -61,6 +61,7 @@ namespace vkl {
         createInstance();
         setupDebugMessenger();
         pickPhysicalDevice();
+        createLogicalDevice();
     }
 
     void HelloTriangleApplication::pickPhysicalDevice() {
@@ -91,22 +92,50 @@ namespace vkl {
         }
     }
 
+    void HelloTriangleApplication::createLogicalDevice() {
+        // Find Queue with graphics capabilities:
+        QueueFamilyIndices indices = findQueueFamilies(physicalDevice);
+
+        // We only created one queue family.
+        VkDeviceQueueCreateInfo qUeueCreateInfo{};
+        qUeueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+        qUeueCreateInfo.queueFamilyIndex = indices.graphicsFamily.value();
+        qUeueCreateInfo.queueCount = 1;
+
+        // /!\ Mandatorty /!\
+        // Setting priority
+        float queuePriority = 1.0f;
+        qUeueCreateInfo.pQueuePriorities = &queuePriority;
+
+        // Empty for now as we don't need anything special
+        VkPhysicalDeviceFeatures deviceFeatures{};
+
+        // Filling the main struct.
+        VkDeviceCreateInfo createInfo{};
+        createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+        createInfo.queueCreateInfoCount = 1;
+        createInfo.pEnabledFeatures = &deviceFeatures;
+
+        // Difference between instance & device specific layer is no longer a thing.
+        // But still doing it for retro-compatibility
+        createInfo.enabledExtensionCount = 0;
+        if (enableValidationLayers) {
+            createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
+        } else {
+            createInfo.enabledLayerCount = 0;
+        }
+        if(vkCreateDevice(physicalDevice, &createInfo, nullptr, &device) != VK_SUCCESS) {
+            throw std::runtime_error("Failed to create logical device.");
+        }
+    }
+
     // TODO: Implement a system taking a configuration file to know which device are suitable and
     //  make an algorithm to filter the GPU and take the best. (and allow the user to change it for a)
     //  a specific one if he want to.
     bool HelloTriangleApplication::isDeviceSuitable(VkPhysicalDevice device) {
         QueueFamilyIndices indices = vkl::findQueueFamilies(device);
 
-        return indices.graphicsFamily.has_value();
-//        // In the cas we would like a GPU that can handle geometry shader :
-//        // Fetching all the features and property of the device.
-//        VkPhysicalDeviceProperties deviceProperties;
-//        VkPhysicalDeviceFeatures deviceFeatures;
-//        vkGetPhysicalDeviceProperties(device, &deviceProperties);
-//        vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
-//
-//        return deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU
-//            && deviceFeatures.geometryShader;
+        return indices.isComplete();
     }
 
     void HelloTriangleApplication::createInstance() {
@@ -251,6 +280,8 @@ namespace vkl {
         if(enableValidationLayers) {
             DestroyDebugUtilsMessengerEXT(instance, debugMessenger, nullptr);
         }
+
+        vkDestroyDevice(device, nullptr);
 
         //The VkInstance should be only destroyed right before the program exits. It
         //can be destroyed in cleanup with the vkDestroyInstance function
